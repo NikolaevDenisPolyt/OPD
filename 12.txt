@@ -1,0 +1,165 @@
+
+
+// include the library code:
+#include <LiquidCrystalRus.h>
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystalRus lcd(12, 10, 11, 5, 4, 3, 2);
+int switchPin1 = 0; // пин кнопки
+int switchPin2 = 1; // пин кнопки
+int switchPin3 = 7; // пин кнопки
+int switchPin4 = 8; // пин кнопки
+int ledPin = 13; // пин светодиода
+int counter = 0;
+boolean lastButton1 = false; // предыдущее состояние кнопки
+boolean lastButton2 = false; // предыдущее состояние кнопки
+boolean lastButton3 = false; // предыдущее состояние кнопки
+boolean lastButton4 = false; // предыдущее состояние кнопки
+boolean currentButton1 = false; // текущее состояние кнопки
+boolean currentButton2 = false; // текущее состояние кнопки
+boolean currentButton3 = false; // текущее состояние кнопки
+boolean currentButton4 = false; // текущее состояние кнопки
+boolean ledOn = false; // состояние светодиода
+int mod = 0;
+int modk = 1;
+int level = 0;
+int levelup = 1;
+void setup() {
+  pinMode (switchPin1, INPUT);
+  pinMode (switchPin2, INPUT);
+  pinMode (switchPin3, INPUT);
+  pinMode (switchPin4, INPUT);
+  pinMode (ledPin, OUTPUT);
+  // set up the LCD's number of rows and columns:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+
+}
+
+void loop() {
+  counter += 1;
+  if (counter == 110) {
+    counter = 0;
+  }
+  mod = otrisovka(mod);
+  currentButton1 = debounce (lastButton1, switchPin1);
+  currentButton2 = debounce (lastButton2, switchPin2);
+  currentButton3 = debounce (lastButton3, switchPin3);
+  currentButton4 = debounce (lastButton4, switchPin4); // получаем состояние кнопки без дребезга
+  if (lastButton1 == false && currentButton1 == true) { // если кнопка была нажата дольше 5 мсек,
+    if (mod == 0) {
+      mod = 1; lcd.clear();
+    }
+    else if (mod == 1) {
+      mod = 2; lcd.clear();
+    }
+    else {
+      level = 1;
+      lcd.clear();
+    }
+
+  }
+  if (lastButton2 == false && currentButton2 == true) { // если кнопка была нажата дольше 5 мсек,
+    if (mod == 0) {
+    }
+    else if (mod == 1) {
+      mod = 0; lcd.clear();
+    }
+    else {
+      if (level == 0) {
+        mod = 1;
+      } level = 0; lcd.clear();
+    }
+  }
+  if (lastButton3 == false && currentButton3 == true) { // если кнопка была нажата дольше 5 мсек,
+    if (mod == 0) {
+    }
+    else if (mod == 1) {
+      if (modk < 8) {
+        modk += 1;
+      }
+      else {
+        modk = 1;
+        lcd.clear();
+      }
+    }
+    else {
+      if (level == 0&&levelup<9) {
+        levelup += 1;
+        lcd.clear();
+      }
+    }
+  }
+  if (lastButton4 == false && currentButton4 == true) { // если кнопка была нажата дольше 5 мсек,
+    if (mod == 0) {
+    }
+    else if (mod == 1) {
+      if (modk > 1) {
+        modk -= 1;
+      }
+      else {
+        modk = 8;
+        lcd.clear();
+      }
+    }
+
+    else {
+      if (level == 0&&levelup>1) {
+        levelup -= 1;
+        lcd.clear();
+      }
+    };
+
+  }
+  lastButton1 = currentButton1; // обнуляем состояние нажатия кнопки
+  lastButton2 = currentButton2; // обнуляем состояние нажатия
+  lastButton3 = currentButton3; // обнуляем состояние нажатия
+  lastButton4 = currentButton4; // обнуляем состояние нажатия
+
+}
+boolean debounce(boolean last, int switchP ) {
+  boolean current = digitalRead(switchP); // считываем текущее состояние кнопки
+  if (last != current) { // если состояние изменилось
+    delay(5); // делаем задержку на 5 мсек, пока уляжется дребезг
+    current = digitalRead(switchP); // и считываем снова
+  }
+  return current; // возвращаем текущее состояние кнопки
+}
+int otrisovka(int mode) {
+  if (mode == 0) {
+    lcd.setCursor(2, 0);
+    lcd.print("Polytechnical");
+    lcd.setCursor(1, 1);
+    lcd.print("spring project");
+
+
+  }
+  else  if (mode == 1 && level == 0) {
+    lcd.setCursor(0, 0);
+    lcd.print("Choose mode:");
+    lcd.setCursor(12, 0);
+    lcd.print(modk);
+  }
+  else  if (mode == 2 && level == 0) {
+    lcd.setCursor(0, 0);
+    lcd.print("Mode:");
+    lcd.setCursor(5, 0);
+    lcd.print(modk);
+    lcd.setCursor(0, 1);
+    lcd.print("Choose level:");
+    lcd.setCursor(13, 1);
+    lcd.print(levelup);
+  }
+  else  if (mode == 2 && level == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("Mode:");
+    lcd.setCursor(5, 0);
+    lcd.print(modk);
+    lcd.setCursor(0, 1);
+    lcd.print("Level:");
+    lcd.setCursor(6, 1);
+    lcd.print(levelup);
+  }
+
+  return mode;
+}
